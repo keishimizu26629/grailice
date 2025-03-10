@@ -114,7 +114,7 @@ class _PlayerSetupPageState extends ConsumerState<PlayerSetupPage> {
                             _playerCount++;
                             if (_controllers.length < _playerCount) {
                               _controllers.add(TextEditingController(
-                                text: 'プレイヤー${_playerCount}',
+                                text: 'プレイヤー$_playerCount',
                               ));
                             }
                           });

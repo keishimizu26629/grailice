@@ -47,7 +47,7 @@ class GameController {
     final gameSession = await _gameRepository.loadGameSession();
     if (gameSession != null) {
       // ゲーム状態を復元
-      _gameNotifier.state = gameSession;
+      _gameNotifier.setGameState(gameSession);
       _messageNotifier.state = "ゲームを再開しました！";
       return true;
     }

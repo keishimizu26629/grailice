@@ -296,7 +296,7 @@ class GamePage extends ConsumerWidget {
         break;
       case CardStatus.withPlayer:
         final ownerName = players.firstWhere((p) => p.id == card.ownerId).name;
-        message = "このカードは${ownerName}が持っています";
+        message = "このカードは$ownerNameが持っています";
         break;
       case CardStatus.inDeck:
         message = "このカードは山札にあります";
@@ -322,7 +322,7 @@ class GamePage extends ConsumerWidget {
 
   /// ゲームメニューを表示
   void _showGameMenu(BuildContext context, WidgetRef ref) {
-    final gameController = ref.read(gameControllerProvider);
+    ref.read(gameControllerProvider);
 
     showDialog(
       context: context,

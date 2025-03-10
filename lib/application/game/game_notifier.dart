@@ -120,7 +120,7 @@ class GameNotifier extends StateNotifier<GameSession?> {
 
     // カードが見つからない場合（ありえないはずだが念のため）
     if (targetCard.id.isEmpty) {
-      return "エラー: ${diceValue}の数字のカードが見つかりません";
+      return "エラー: $diceValueの数字のカードが見つかりません";
     }
 
     // カードの状態に応じた処理
@@ -133,7 +133,7 @@ class GameNotifier extends StateNotifier<GameSession?> {
         // カードを持っているプレイヤーを特定
         final ownerPlayer = state!.players.firstWhere(
           (player) => player.id == targetCard.ownerId,
-          orElse: () => Player(id: "", name: "不明"),
+          orElse: () => const Player(id: "", name: "不明"),
         );
 
         if (ownerPlayer.id.isEmpty) {
@@ -179,7 +179,7 @@ class GameNotifier extends StateNotifier<GameSession?> {
       players: updatedPlayers,
     );
 
-    return "${player.name}がアウトです！${cardNumber}の数字のカードを持っています";
+    return "${player.name}がアウトです！$cardNumberの数字のカードを持っています";
   }
 
   /// セーフの場合、カードを前のプレイヤーに渡す
@@ -341,5 +341,10 @@ class GameNotifier extends StateNotifier<GameSession?> {
   /// ゲームをリセット
   void resetGame() {
     state = null;
+  }
+
+  /// 保存されたゲーム状態を設定
+  void setGameState(GameSession gameSession) {
+    state = gameSession;
   }
 }

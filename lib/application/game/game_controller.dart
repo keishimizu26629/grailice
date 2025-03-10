@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entity/game_session.dart';
 import '../../domain/entity/player.dart';
+import '../../domain/entity/game_session.dart';
 import '../../infrastructure/storage/game_repository.dart';
 import 'game_notifier.dart';
 
@@ -8,8 +8,10 @@ import 'game_notifier.dart';
 final gameControllerProvider = Provider<GameController>((ref) {
   final gameRepository = ref.watch(gameRepositoryProvider);
   final gameNotifier = ref.watch(gameNotifierProvider.notifier);
+  final gameState = ref.watch(gameNotifierProvider);
   final messageNotifier = ref.watch(gameMessageProvider.notifier);
-  return GameController(gameRepository, gameNotifier, messageNotifier);
+  return GameController(
+      gameRepository, gameNotifier, messageNotifier, gameState);
 });
 
 /// ゲームの状態管理とローカルストレージを連携させるコントローラー
@@ -17,9 +19,10 @@ class GameController {
   final GameRepository _gameRepository;
   final GameNotifier _gameNotifier;
   final StateController<String?> _messageNotifier;
+  final GameSession? _gameState;
 
-  GameController(
-      this._gameRepository, this._gameNotifier, this._messageNotifier);
+  GameController(this._gameRepository, this._gameNotifier,
+      this._messageNotifier, this._gameState);
 
   /// 新しいゲームを開始
   Future<void> startNewGame(List<String> playerNames) async {
@@ -33,7 +36,7 @@ class GameController {
     _messageNotifier.state = "ゲームを開始しました！";
 
     // ゲーム状態を保存
-    final gameSession = _gameNotifier.state;
+    final gameSession = _gameState;
     if (gameSession != null) {
       await _gameRepository.saveGameSession(gameSession);
     }
@@ -44,7 +47,7 @@ class GameController {
     final gameSession = await _gameRepository.loadGameSession();
     if (gameSession != null) {
       // ゲーム状態を復元
-      _gameNotifier.state = gameSession;
+      _gameNotifier.setGameState(gameSession);
       _messageNotifier.state = "ゲームを再開しました！";
       return true;
     }
@@ -60,7 +63,7 @@ class GameController {
     _messageNotifier.state = message;
 
     // ゲーム状態を保存
-    final gameSession = _gameNotifier.state;
+    final gameSession = _gameState;
     if (gameSession != null) {
       await _gameRepository.saveGameSession(gameSession);
     }
@@ -79,7 +82,7 @@ class GameController {
     _gameNotifier.nextPlayer();
 
     // 現在のプレイヤーを取得
-    final gameSession = _gameNotifier.state;
+    final gameSession = _gameState;
     if (gameSession != null) {
       final currentPlayer = gameSession.players[gameSession.currentPlayerIndex];
       _messageNotifier.state = "${currentPlayer.name}のターンです";
@@ -98,7 +101,7 @@ class GameController {
     _messageNotifier.state = outCountSummary;
 
     // ゲーム状態を保存
-    final gameSession = _gameNotifier.state;
+    final gameSession = _gameState;
     if (gameSession != null) {
       await _gameRepository.saveGameSession(gameSession);
     }
@@ -123,7 +126,7 @@ class GameController {
 
   /// 現在のプレイヤーを取得
   Player? getCurrentPlayer() {
-    final gameSession = _gameNotifier.state;
+    final gameSession = _gameState;
     if (gameSession == null) return null;
 
     return gameSession.players[gameSession.currentPlayerIndex];
